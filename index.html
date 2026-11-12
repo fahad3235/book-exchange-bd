@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book Exchange BD</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1 data-i18n="title">Book Exchange BD</h1>
+    <p class="subtitle" data-i18n="subtitle"></p>
+    <div class="lang-row">
+      <span data-i18n="langLabel">Language</span>
+      <button type="button" class="lang-btn active" id="langEn">English</button>
+      <button type="button" class="lang-btn" id="langBn">BN</button>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Sections">
+    <button type="button" class="tab-btn active" data-tab="browse" data-i18n="tab_browse">Browse Books</button>
+    <button type="button" class="tab-btn" data-tab="post" data-i18n="tab_post">Post a Book</button>
+    <button type="button" class="tab-btn" data-tab="wishlist"><span data-i18n="tab_wishlist">Wishlist</span> (<span id="wishCount">0</span>)</button>
+    <button type="button" class="tab-btn" data-tab="data" data-i18n="tab_data">Data &amp; Settings</button>
+  </nav>
+
+  <section class="tab-panel active" id="tab-browse">
+    <div class="stats">
+      <div class="stat"><b id="statTotal">0</b><span data-i18n="stats_total">Total listings</span></div>
+      <div class="stat"><b id="statAvailable">0</b><span data-i18n="stats_available">Available now</span></div>
+      <div class="stat"><b id="statFree">0</b><span data-i18n="stats_free">Free books</span></div>
+      <div class="stat"><b id="statAvg">&#8212;</b><span data-i18n="stats_avg">Average price</span></div>
+    </div>
+    <div class="filters">
+      <div class="row">
+        <div class="field">
+          <label for="q" data-i18n="searchLabel">Search title, author or seller</label>
+          <input type="text" id="q" data-i18n-ph="searchPh" placeholder="Type to filter..." autocomplete="off">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="fSubject" data-i18n="filterSubject">Subject</label>
+          <select id="fSubject"></select>
+        </div>
+        <div class="field">
+          <label for="fCondition" data-i18n="filterCondition">Condition</label>
+          <select id="fCondition"></select>
+        </div>
+        <div class="field">
+          <label for="fType" data-i18n="filterType">Type</label>
+          <select id="fType"></select>
+        </div>
+        <div class="field">
+          <label for="fStatus" data-i18n="filterStatus">Status</label>
+          <select id="fStatus"></select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="fMaxPrice" data-i18n="maxPriceLabel">Max price (Tk)</label>
+          <input type="number" id="fMaxPrice" min="0" max="1000000" step="1" placeholder="0">
+        </div>
+        <div class="field">
+          <label for="sort" data-i18n="sortLabel">Sort by</label>
+          <select id="sort">
+            <option value="newest" data-i18n="sort_newest">Newest first</option>
+            <option value="priceAsc" data-i18n="sort_priceAsc">Price: low to high</option>
+            <option value="priceDesc" data-i18n="sort_priceDesc">Price: high to low</option>
+            <option value="title" data-i18n="sort_title">Title A&#8211;Z</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="list"></div>
+    <p class="empty" id="listEmpty" data-i18n="listEmpty"></p>
+  </section>
+
+  <section class="tab-panel" id="tab-post">
+    <div class="panel-box">
+      <h2 id="formTitle" data-i18n="postTitle">Post a book</h2>
+      <form id="postForm" novalidate>
+        <div class="grid">
+          <div class="field">
+            <label for="title" data-i18n="titleLabel">Book title</label>
+            <input type="text" id="title" data-i18n-ph="titlePh" placeholder="e.g. Data Structures in C" maxlength="120">
+            <p class="err" id="err-title"></p>
+          </div>
+          <div class="field">
+            <label for="author" data-i18n="authorLabel">Author</label>
+            <input type="text" id="author" data-i18n-ph="authorPh" placeholder="e.g. Seymour Lipschutz" maxlength="80">
+            <p class="err" id="err-author"></p>
+          </div>
+          <div class="field">
+            <label for="subject" data-i18n="subjectLabel">Subject / course</label>
+            <select id="subject"></select>
+            <p class="err" id="err-subject"></p>
+          </div>
+          <div class="field">
+            <label for="condition" data-i18n="conditionLabel">Book condition</label>
+            <select id="condition"></select>
+            <p class="err" id="err-condition"></p>
+          </div>
+          <div class="field full">
+            <label data-i18n="typeLabel">Listing type</label>
+            <div class="radio-row">
+              <label><input type="radio" name="type" value="sale" checked> <span data-i18n="forSale">For sale</span></label>
+              <label><input type="radio" name="type" value="free"> <span data-i18n="giveaway">Free giveaway</span></label>
+              <label><input type="radio" name="type" value="swap"> <span data-i18n="swap">Swap</span></label>
+            </div>
+            <p class="err" id="err-type"></p>
+          </div>
+          <div class="field">
+            <label for="price" data-i18n="priceLabel">Asking price (Tk)</label>
+            <input type="number" id="price" min="0" max="1000000" step="1" placeholder="0">
+            <span class="hint" data-i18n="priceHint">Required for sale listings; leave 0 for free or swap.</span>
+            <p class="err" id="err-price"></p>
+          </div>
+          <div class="field">
+            <label for="area" data-i18n="areaLabel">Area / campus</label>
+            <input type="text" id="area" data-i18n-ph="areaPh" placeholder="e.g. Dhanmondi, DIU" maxlength="80">
+            <p class="err" id="err-area"></p>
+          </div>
+          <div class="field">
+            <label for="seller" data-i18n="sellerNameLabel">Your name</label>
+            <input type="text" id="seller" data-i18n-ph="sellerNamePh" placeholder="e.g. Fahad" maxlength="60">
+            <p class="err" id="err-seller"></p>
+          </div>
+          <div class="field">
+            <label for="phone" data-i18n="phoneLabel">Phone</label>
+            <input type="tel" id="phone" data-i18n-ph="phonePh" placeholder="e.g. 01712-345678" inputmode="tel">
+            <span class="hint" data-i18n="phoneHint">Bangladeshi mobile, 11 digits starting with 01.</span>
+            <p class="err" id="err-phone"></p>
+          </div>
+          <div class="field full">
+            <label for="notes" data-i18n="notesLabel">Notes</label>
+            <textarea id="notes" data-i18n-ph="notesPh" placeholder="Edition, highlights, meeting place..." maxlength="300"></textarea>
+            <p class="err" id="err-notes"></p>
+          </div>
+        </div>
+        <p class="msg" id="formMsg" aria-live="polite"></p>
+        <div class="form-actions">
+          <button type="submit" class="btn primary" id="saveBtn" data-i18n="saveBtn">Post book</button>
+          <button type="button" class="btn" id="cancelEdit" style="display:none" data-i18n="cancelEdit">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-wishlist">
+    <h2 data-i18n="wishlistTitle">Your wishlist</h2>
+    <div id="wishList"></div>
+    <p class="empty" id="wishEmpty" data-i18n="wishlistEmpty"></p>
+  </section>
+
+  <section class="tab-panel" id="tab-data">
+    <div class="panel-box">
+      <h2 data-i18n="dataTitle">Your data</h2>
+      <div class="data-row">
+        <button type="button" class="btn" id="exportBtn" data-i18n="exportBtn">Export listings (JSON)</button>
+        <button type="button" class="btn" id="importBtn" data-i18n="importBtn">Import listings (JSON)</button>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+      </div>
+      <div class="data-row">
+        <input type="text" id="eraseConfirm" data-i18n-ph="eraseConfirm" placeholder="Type DELETE to erase everything." autocomplete="off" style="max-width:280px">
+        <button type="button" class="btn danger" id="eraseBtn" data-i18n="eraseBtn">Erase all data</button>
+      </div>
+      <p class="msg" id="dataMsg" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <footer>
+    <p data-i18n="disclaimer"></p>
+    <p>Book Exchange BD &middot; 100% offline &middot; data stays in your browser (localStorage).</p>
+  </footer>
+</div>
+<script src="js/i18n.js"></script>
+<script src="js/logic.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
